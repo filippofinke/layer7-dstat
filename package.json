@@ -1,0 +1,15 @@
+{
+  "name": "layer7-dstat",
+  "version": "1.0.0",
+  "description": "A simple layer7 dstat on the web",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Filippo Finke",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^7.2.1"
+  }
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Layer7 - DSTAT</title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        #chart {
+            width: 80%;
+            margin: auto;
+        }
+
+        #info { 
+            margin-top: 2em;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 id="info"></h2>
+    <div id="chart"></div>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script>
+
+        function center() {
+            var c = document.getElementById("chart");
+            var cH = c.clientHeight;
+            var sH = window.innerHeight;
+            var m = ((sH - cH) / 3) + "px";
+            c.style.marginTop = m;
+        }
+
+        window.onload = () => {
+            console.log("Page loaded!");
+
+            var chart = Highcharts.chart('chart', {
+                exporting: {
+                    enabled: true
+                },
+                chart: {
+                    type: 'area',
+                    events: {
+                        load: center
+                    }
+                },
+                title: {
+                    text: 'Layer7 DSTAT'
+                },
+                xAxis: {
+                    type: 'datetime'
+                },
+                yAxis: {
+                    title: {
+                        text: ''
+                    }
+                },
+                series: [{
+                    name: 'Requests',
+                    data: []
+                }]
+            });
+
+            document.getElementById("info").innerText = "Capturing requests from " + location.host + "/dstat";
+
+            var ws = new WebSocket("ws://" + location.host + "/");
+
+            ws.onopen = (event) => {
+                console.log("Connected to the dstat server!");
+            }
+
+            ws.onerror = (event) => {
+                console.log("Error with the dstat server connection!");
+                console.error(event);
+            }
+
+            ws.onclose = (event) => {
+                console.log("Connection with the dstat server closed!");
+            }
+
+            ws.onmessage = (event) => {
+                var requests = Number(event.data);
+                console.log(requests + "r/s");
+                var time = new Date().getTime();
+                chart.series[0].addPoint([time, requests]);
+            }
+
+        }
+    </script>
+</body>
+
+</html>
