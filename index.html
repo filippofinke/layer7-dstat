@@ -6,9 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Layer7 - DSTAT</title>
     <style>
-        * {
-            padding: 0px;
-            margin: 0px;
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        body>div {
+            width: 100%;
         }
 
         #chart {
@@ -16,7 +28,7 @@
             margin: auto;
         }
 
-        #info { 
+        #info {
             margin-top: 2em;
             text-align: center;
             font-family: Arial, Helvetica, sans-serif;
@@ -25,33 +37,24 @@
 </head>
 
 <body>
-    <h2 id="info"></h2>
-    <div id="chart"></div>
-
+    <div>
+        <h2 id="info"></h2>
+        <div id="chart"></div>
+    </div>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script>
 
-        function center() {
-            var c = document.getElementById("chart");
-            var cH = c.clientHeight;
-            var sH = window.innerHeight;
-            var m = ((sH - cH) / 3) + "px";
-            c.style.marginTop = m;
-        }
 
         window.onload = () => {
-            console.log("Page loaded!");
+            let info = document.getElementById("info");
 
-            var chart = Highcharts.chart('chart', {
+            let chart = Highcharts.chart('chart', {
                 exporting: {
                     enabled: true
                 },
                 chart: {
-                    type: 'area',
-                    events: {
-                        load: center
-                    }
+                    type: 'area'
                 },
                 title: {
                     text: 'Layer7 DSTAT'
@@ -70,28 +73,14 @@
                 }]
             });
 
-            document.getElementById("info").innerText = "Capturing requests from " + location.host + "/dstat";
+            info.innerText = "Capturing requests from " + location.host + "/dstat";
 
-            var ws = new WebSocket("ws://" + location.host + "/");
-
-            ws.onopen = (event) => {
-                console.log("Connected to the dstat server!");
-            }
-
-            ws.onerror = (event) => {
-                console.log("Error with the dstat server connection!");
-                console.error(event);
-            }
-
-            ws.onclose = (event) => {
-                console.log("Connection with the dstat server closed!");
-            }
+            let ws = new WebSocket("ws://" + location.host + "/");
 
             ws.onmessage = (event) => {
-                var requests = Number(event.data);
-                console.log(requests + "r/s");
-                var time = new Date().getTime();
-                chart.series[0].addPoint([time, requests]);
+                let requests = Number(event.data);
+                let time = new Date().getTime();
+                chart.series[0].addPoint([time, requests], true, chart.series[0].points.length > 60);
             }
 
         }
