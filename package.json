@@ -4,12 +4,15 @@
   "description": "A simple layer7 dstat on the web",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "Filippo Finke",
-  "license": "ISC",
   "dependencies": {
     "ws": "^7.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/filippofinke/layer7-dstat.git"
   }
 }
