@@ -5,31 +5,37 @@ const cluster = require("cluster");
 const os = require("os");
 
 const cpus = os.cpus().length;
-
 const port = 8080;
-let requests = 0;
-
 const index = fs.readFileSync("./index.html");
 
 if (cluster.isMaster) {
   console.log(`Number of CPUs is ${cpus}`);
   console.log(`Master ${process.pid} is running`);
 
+  let requests = 0;
+  let childs = [];
   for (let i = 0; i < cpus; i++) {
-    cluster.fork();
+    let child = cluster.fork();
+    child.on("message", (msg) => {
+      requests++;
+    });
+    childs.push(child);
   }
 
-  cluster.on("exit", (worker, code, signal) => {
-    console.log(`worker ${worker.process.pid} died`);
-    console.log("Let's fork another worker!");
-    cluster.fork();
-  });
+  setInterval(() => {
+    console.log(`Requests: ${requests}`);
+
+    for (let child of childs) {
+      child.send(requests);
+    }
+    requests = 0;
+  }, 1000);
 } else {
   console.log(`Worker ${process.pid} started`);
 
   const handler = function (req, res) {
     if (req.url == "/dstat") {
-      requests++;
+      process.send("increment");
       res.end();
     } else {
       res.end(index);
@@ -39,12 +45,9 @@ if (cluster.isMaster) {
   const server = http.createServer(handler);
   const wss = new WebSocket.Server({ server });
 
-  const broadcast = function () {
+  process.on("message", (requests) => {
     wss.clients.forEach((client) => client.send(requests));
-    requests = 0;
-  };
-
-  setInterval(broadcast, 1000);
+  });
 
   server.listen(port);
 }
