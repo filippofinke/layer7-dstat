@@ -5,7 +5,7 @@
 <details>
  <summary>Demo</summary>
  <p align="center">
-  <img src="demo.png">
+  <img src="https://user-images.githubusercontent.com/37296364/149123337-32a5cd30-13f2-427a-ab1a-a4af26bf8138.gif">
 </p>
 </details>
 
