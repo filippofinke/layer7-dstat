@@ -23,8 +23,6 @@ if (cluster.isMaster) {
   }
 
   setInterval(() => {
-    console.log(`Requests: ${requests}`);
-
     for (let child of childs) {
       child.send(requests);
     }
@@ -35,7 +33,7 @@ if (cluster.isMaster) {
 
   const handler = function (req, res) {
     if (req.url == "/dstat") {
-      process.send("increment");
+      process.send(0);
       res.end();
     } else {
       res.end(index);
